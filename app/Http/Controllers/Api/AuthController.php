@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+
+class AuthController extends Controller
+{
+    /**
+     * STEP 1: Request Login OTP
+     */
+    public function requestOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|size:10|exists:users,phone'
+        ], [
+            'phone.exists' => 'This mobile number is not registered with our agency.'
+        ]);
+
+        $user = User::where('phone', $request->phone)->first();
+        
+        // Generate Real 6-digit OTP
+        $otp = rand(100000, 999999);
+
+        // Cache the OTP for 5 minutes
+        Cache::put('login_otp_' . $user->phone, $otp, now()->addMinutes(5));
+
+        // ==========================================
+        // REAL SMS DELIVERY VIA FAST2SMS
+        // ==========================================
+        $message = "Your Amrutha BharatGas Login OTP is {$otp}. Valid for 5 mins. Do not share this with anyone.";
+
+        try {
+            $response = Http::withHeaders([
+                'authorization' => env('FAST2SMS_API_KEY')
+            ])->post('https://www.fast2sms.com/dev/bulkV2', [
+                'route' => 'q',
+                'message' => $message,
+                'language' => 'english',
+                'flash' => 0,
+                'numbers' => $user->phone,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Fast2SMS Login Failed: ' . $response->body());
+                Log::info("DEVELOPMENT FALLBACK: Login OTP for {$user->phone} is {$otp}");
+            }
+        } catch (\Exception $e) {
+            Log::error('Fast2SMS Exception: ' . $e->getMessage());
+            Log::info("DEVELOPMENT FALLBACK: Login OTP for {$user->phone} is {$otp}");
+        }
+
+        return response()->json([
+            'message' => 'OTP sent successfully to your registered mobile number.'
+        ]);
+    }
+
+    /**
+     * STEP 2: Verify OTP and Login
+     */
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|size:10|exists:users,phone',
+            'otp' => 'required|size:6'
+        ]);
+
+        // ⚡ DEVELOPMENT BYPASS: Instantly authenticate the dummy account with 111111
+        if ($request->phone === '9999999999' && $request->otp === '111111') {
+            $user = User::where('phone', $request->phone)->first();
+            
+            // Issue Laravel Sanctum Token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login successful (Dev Bypass Activated)',
+                'user' => $user,
+                'role' => $user->role,
+                'token' => $token
+            ]);
+        }
+
+        // Standard production validation chain
+        $cachedOtp = Cache::get('login_otp_' . $request->phone);
+
+        if (!$cachedOtp || (string)$cachedOtp !== (string)$request->otp) {
+            return response()->json([
+                'message' => 'Invalid or expired OTP. Please try again.'
+            ], 401);
+        }
+
+        // OTP is valid! Find user and generate token.
+        $user = User::where('phone', $request->phone)->first();
+        
+        // Clear the cache so OTP cannot be reused
+        Cache::forget('login_otp_' . $request->phone);
+
+        // Issue Laravel Sanctum Token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+            'role' => $user->role,
+            'token' => $token
+        ]);
+    }
+
+    /**
+     * Logout
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully']);
+    }
+}

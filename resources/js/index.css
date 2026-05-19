@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-orange-50: #fff4ed;
+  --color-brand-orange-100: #ffe6d5;
+  --color-brand-orange-200: #fecba9;
+  --color-brand-orange-300: #fda973;
+  --color-brand-orange-400: #fb7c34;
+  --color-brand-orange-500: #f75b11;
+  --color-brand-orange-600: #e9430c;
+  --color-brand-orange-700: #c2300b;
+  --color-brand-orange-800: #9a2612;
+  --color-brand-orange-900: #7c2212;
+  
+  --color-brand-blue-50: #f2f7fd;
+  --color-brand-blue-100: #e3effa;
+  --color-brand-blue-200: #c1def4;
+  --color-brand-blue-300: #8ec3ec;
+  --color-brand-blue-400: #55a2e1;
+  --color-brand-blue-500: #3086d0;
+  --color-brand-blue-600: #1f68ab;
+  --color-brand-blue-700: #1a548c;
+  --color-brand-blue-800: #174875;
+  --color-brand-blue-900: #0b3b60;
+
+  --color-brand-cyan-400: #22d3ee;
+  --color-brand-cyan-500: #06b6d4;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #020817;
+    --card: #ffffff;
+    --card-foreground: #020817;
+    --popover: #ffffff;
+    --popover-foreground: #020817;
+    --primary: #FF6B00;
+    --primary-foreground: #ffffff;
+    --secondary: #0b3b60;
+    --secondary-foreground: #f8fafc;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --destructive: #ef4444;
+    --destructive-foreground: #f8fafc;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #FF6B00;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: #0A0A0B;
+    --foreground: #f1f5f9;
+    --card: #121214;
+    --card-foreground: #f1f5f9;
+    --popover: #121214;
+    --popover-foreground: #f1f5f9;
+    --primary: #FF6B00;
+    --primary-foreground: #ffffff;
+    --secondary: #1e293b;
+    --secondary-foreground: #f1f5f9;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #1e293b;
+    --accent-foreground: #f1f5f9;
+    --destructive: #7f1d1d;
+    --destructive-foreground: #f1f5f9;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: #FF6B00;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground tracking-tight antialiased selection:bg-[#FF6B00] selection:text-white transition-colors duration-300;
+  }
+}
+
+.glass {
+  @apply bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10;
+}
+
+.glass-card {
+  @apply bg-white/70 dark:bg-[#121214]/80 backdrop-blur-xl border border-white/40 dark:border-[rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_20px_rgba(255,107,0,0.4)];
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange-500 to-[#FF6B00] dark:from-[#FF6B00] dark:to-orange-300;
+}
+
+.gradient-bg {
+  @apply bg-gradient-to-br from-[#FF6B00] to-orange-600 dark:from-slate-700 dark:to-slate-500;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+}
+
+/* Base animations */
+@keyframes grid {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+.dark .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
