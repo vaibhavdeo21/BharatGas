@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, CheckCircle2, MapPin, Truck, ShieldCheck, ChevronRight, CreditCard, Banknote } from "lucide-react";
+import { Flame, CheckCircle2, MapPin, Truck, ShieldCheck, ChevronRight, CreditCard, Banknote, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function BookCylinder() {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [bookingData, setBookingData] = useState<any>(null);
+
+  const userData = (() => {
+    try { return JSON.parse(localStorage.getItem('user_data') || '{}'); } catch { return {}; }
+  })();
 
   return (
     <div className="p-4 lg:p-8 max-w-5xl mx-auto w-full">
@@ -35,11 +43,11 @@ export default function BookCylinder() {
              {step === 1 ? (
                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                  <div className="bg-muted p-4 rounded-2xl border flex gap-4 items-start">
-                   <div className="mt-1"><MapPin className="text-brand-orange-500" /></div>
-                   <div>
-                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Default Address</span>
-                     <p className="font-semibold text-lg leading-tight mb-1">Sumit Sharma</p>
-                     <p className="text-muted-foreground text-sm">H.No 45, Green Park Avenue,<br/>Near Govt School, Sector 4,<br/>Vijayawada - 520004</p>
+                    <div className="mt-1"><MapPin className="text-brand-orange-500" /></div>
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Default Address</span>
+                      <p className="font-semibold text-lg leading-tight mb-1">{userData.name || "Customer"}</p>
+                      <p className="text-muted-foreground text-sm">{userData.address || "Address not updated"}</p>
                      <button className="text-sm font-bold text-brand-blue-500 mt-2 hover:underline">Change Address</button>
                    </div>
                  </div>
@@ -127,12 +135,31 @@ export default function BookCylinder() {
                    </div>
                  </button>
 
-                 <div className="pt-6">
+                 <div className="pt-6 space-y-3">
+                   {error && <p className="text-sm text-destructive text-center font-medium">{error}</p>}
                    <button 
-                     onClick={() => setStep(3)}
-                     className="w-full py-4 rounded-xl bg-brand-orange-500 text-white font-bold text-lg hover:bg-brand-orange-600 transition-colors shadow-lg shadow-brand-orange-500/25 flex items-center justify-center gap-2"
+                     onClick={async () => {
+                       setLoading(true);
+                       setError("");
+                       try {
+                         const token = localStorage.getItem('auth_token');
+                         const res = await axios.post('/api/bookings', {
+                           cylinder_type: 'domestic_14_2',
+                           quantity: 1
+                         }, { headers: { Authorization: `Bearer ${token}` } });
+                         setBookingData(res.data.booking);
+                         setStep(3);
+                       } catch (err: any) {
+                         setError(err.response?.data?.message || "Booking failed. Ensure you have an active connection.");
+                       } finally {
+                         setLoading(false);
+                       }
+                     }}
+                     disabled={loading}
+                     className="w-full py-4 rounded-xl bg-brand-orange-500 text-white font-bold text-lg hover:bg-brand-orange-600 transition-colors shadow-lg shadow-brand-orange-500/25 flex items-center justify-center gap-2 disabled:opacity-70"
                    >
-                     {paymentMethod === 'online' ? 'Proceed to Pay ₹942' : 'Book Cylinder Now'} <ChevronRight size={20} />
+                     {loading ? <Loader2 className="animate-spin" /> : paymentMethod === 'online' ? 'Proceed to Pay ₹942' : 'Book Cylinder Now'} 
+                     {!loading && <ChevronRight size={20} />}
                    </button>
                  </div>
                </motion.div>
@@ -163,12 +190,12 @@ export default function BookCylinder() {
                  </motion.div>
                  
                  <h2 className="text-3xl font-extrabold mb-2 relative z-10">Booking Confirmed!</h2>
-                 <p className="text-white/80 font-medium mb-8 relative z-10">Order Reference: #ORD-8922</p>
+                 <p className="text-white/80 font-medium mb-8 relative z-10">Order Reference: {bookingData?.booking_reference || '#ORD-8922'}</p>
 
                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 text-left border border-white/20 mb-8 relative z-10">
                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
                      <span className="text-white/70">Expected Delivery</span>
-                     <span className="font-bold text-lg">Tomorrow, by 2 PM</span>
+                     <span className="font-bold text-lg">{bookingData ? new Date(bookingData.expected_delivery_date).toLocaleDateString() : 'Tomorrow'}</span>
                    </div>
                    <div className="flex justify-between items-center">
                      <span className="text-white/70">Est. Subsidy</span>

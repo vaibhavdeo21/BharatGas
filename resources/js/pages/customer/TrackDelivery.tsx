@@ -1,8 +1,29 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MapPin, Phone, MessageSquare, Star, ArrowLeft, Clock, ShieldCheck, CheckCircle2, Flame } from "lucide-react";
+import { MapPin, Phone, MessageSquare, Star, ArrowLeft, Clock, ShieldCheck, CheckCircle2, Flame, Loader2 } from "lucide-react";
+import axios from "axios";
 
 export default function TrackDelivery() {
+  const [activeBooking, setActiveBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const res = await axios.get('/api/customer/bookings/history', config).catch(() => ({ data: [] }));
+        const bookings = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        
+        // Find active booking (not delivered/cancelled)
+        const active = bookings.find((b: any) => b.status !== 'delivered' && b.status !== 'cancelled');
+        setActiveBooking(active || null);
+      } catch {}
+      finally { setLoading(false); }
+    };
+    fetchData();
+  }, []);
   return (
     <div className="flex flex-col lg:flex-row h-full absolute inset-0 pt-16">
       {/* Sidebar with Timeline */}
@@ -14,10 +35,10 @@ export default function TrackDelivery() {
           <div className="flex justify-between items-start mb-2">
             <div>
                <h1 className="text-2xl font-bold tracking-tight">Track Order</h1>
-               <p className="text-muted-foreground font-medium">#ORD-8921</p>
+               <p className="text-muted-foreground font-medium">#{activeBooking?.id || 'ORD-8921'}</p>
             </div>
             <div className="px-3 py-1 bg-brand-orange-500/10 text-brand-orange-600 dark:text-brand-orange-400 text-xs font-bold uppercase tracking-wider rounded-full border border-brand-orange-500/20">
-               En Route
+               {activeBooking?.status === 'pending' ? 'Processing' : activeBooking?.status === 'in_transit' ? 'En Route' : 'Preparing'}
             </div>
           </div>
           <div className="mt-4 flex items-center gap-3">
