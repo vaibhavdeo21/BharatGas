@@ -6,6 +6,7 @@ import {
   CheckCircle2, X, Loader2, ShieldCheck, RefreshCw, Inbox
 } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function Inventory() {
   const [stock, setStock] = useState<any[]>([]);
@@ -59,11 +60,13 @@ export default function Inventory() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.post('/api/admin/inventory/truck/receive', payload, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg("Truck manifest recorded and stock updated!");
+      toast.success("Truck manifest recorded and stock updated!");
       fetchData();
-      setTimeout(() => { setIsTruckModalOpen(false); setTruckForm({ truckNo: "", domestic_14_2_full: "", domestic_14_2_empty: "", commercial_19_full: "", commercial_19_empty: "", domestic_5_full: "", domestic_5_empty: "" }); setSuccessMsg(""); setSubmitting(false); }, 2000);
+      setIsTruckModalOpen(false); 
+      setTruckForm({ truckNo: "", domestic_14_2_full: "", domestic_14_2_empty: "", commercial_19_full: "", commercial_19_empty: "", domestic_5_full: "", domestic_5_empty: "" }); 
+      setSubmitting(false);
     } catch {
-      alert("Failed to update inventory.");
+      toast.error("Failed to update inventory.");
       setSubmitting(false);
     }
   };
@@ -186,13 +189,6 @@ export default function Inventory() {
                 <div><h3 className="text-xl font-bold">Inward Plant Truck</h3><p className="text-sm text-muted-foreground">Log received cylinders and returned empties.</p></div>
                 <button onClick={() => setIsTruckModalOpen(false)} className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground"><X size={16} /></button>
               </div>
-              {successMsg ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-4"><CheckCircle2 size={28} /></div>
-                  <h4 className="text-lg font-bold mb-2">Manifest Verified</h4>
-                  <p className="text-muted-foreground text-center text-sm">{successMsg}</p>
-                </div>
-              ) : (
                 <form onSubmit={handleReceiveTruck} className="overflow-y-auto pr-2 space-y-5 pb-4">
                   <div>
                     <label className="block text-sm font-medium mb-1.5">Vehicle Number</label>
@@ -224,7 +220,6 @@ export default function Inventory() {
                     {submitting ? <Loader2 className="animate-spin" size={18} /> : "Verify & Update Inventory"}
                   </button>
                 </form>
-              )}
             </motion.div>
           </div>
         )}

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, UserPlus, Trash2, Shield, Flame, X, Loader2, CheckCircle2, Inbox } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { UserPlus, Loader2, Users, Shield, Flame, Trash2, X, CheckCircle2 } from "lucide-react";
 
 export default function StaffManagement() {
   const [staff, setStaff] = useState<any[]>([]);
@@ -42,7 +43,10 @@ export default function StaffManagement() {
       const token = localStorage.getItem('auth_token');
       await axios.delete(`/api/admin/staff/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       setStaff(staff.filter(s => s.id !== id));
-    } catch (err: any) { alert(err.response?.data?.message || "Failed to delete staff."); }
+      toast.success("Staff member removed successfully.");
+    } catch (err: any) { 
+      toast.error(err.response?.data?.message || "Failed to delete staff."); 
+    }
   };
 
   return (

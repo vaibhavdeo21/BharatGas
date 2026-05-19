@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, CheckCircle, XCircle, Search, Loader2, Clock, Shield, UserCheck, UserX, Inbox, Eye, X, Edit, Trash2, AlertTriangle, AlertCircle } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { Clock, UserCheck, Users, Search, Loader2, Inbox, AlertTriangle, Shield, AlertCircle, CheckCircle, Eye, Edit, UserX, CheckCircle2, XCircle, Trash2, X } from "lucide-react";
 
 type Tab = "pending" | "approved" | "all";
 
@@ -10,8 +11,6 @@ export default function Customers() {
   const [pendingCustomers, setPendingCustomers] = useState<any[]>([]);
   const [approvedCustomers, setApprovedCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   
@@ -32,9 +31,8 @@ export default function Customers() {
       
       setPendingCustomers(pendRes.data.customers || []);
       setApprovedCustomers(appRes.data.customers || []);
-      setError("");
     } catch (err) {
-      setError("Failed to load customer data");
+      toast.error("Failed to load customer data");
     } finally {
       setLoading(false);
     }
@@ -46,10 +44,9 @@ export default function Customers() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.post(`/api/admin/customers/${id}/approve`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg("Customer approved successfully!");
+      toast.success("Customer approved successfully!");
       fetchData();
-      setTimeout(() => setSuccessMsg(""), 3000);
-    } catch { setError("Failed to approve customer"); }
+    } catch { toast.error("Failed to approve customer"); }
   };
 
   const handleReject = async (id: number) => {
@@ -57,10 +54,9 @@ export default function Customers() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.delete(`/api/admin/customers/${id}/reject`, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg("Registration rejected.");
+      toast.success("Registration rejected.");
       fetchData();
-      setTimeout(() => setSuccessMsg(""), 3000);
-    } catch { setError("Failed to reject customer"); }
+    } catch { toast.error("Failed to reject customer"); }
   };
 
   const handleDelete = async (id: number) => {
@@ -68,11 +64,10 @@ export default function Customers() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.delete(`/api/admin/customers/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg("Customer deleted successfully.");
+      toast.success("Customer deleted successfully.");
       setSelectedCustomer(null);
       fetchData();
-      setTimeout(() => setSuccessMsg(""), 3000);
-    } catch { setError("Failed to delete customer"); }
+    } catch { toast.error("Failed to delete customer"); }
   };
 
   const handleSuspend = async (customer: any) => {
@@ -81,11 +76,10 @@ export default function Customers() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.put(`/api/admin/customers/${customer.id}`, { account_status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg(`Customer account ${newStatus === 'suspended' ? 'suspended' : 'reactivated'}.`);
+      toast.success(`Customer account ${newStatus === 'suspended' ? 'suspended' : 'reactivated'}.`);
       setSelectedCustomer(null);
       fetchData();
-      setTimeout(() => setSuccessMsg(""), 3000);
-    } catch { setError("Failed to update account status"); }
+    } catch { toast.error("Failed to update account status"); }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -93,13 +87,12 @@ export default function Customers() {
     try {
       const token = localStorage.getItem('auth_token');
       await axios.put(`/api/admin/customers/${editingCustomer.id}`, editingCustomer, { headers: { Authorization: `Bearer ${token}` } });
-      setSuccessMsg("Customer updated successfully.");
+      toast.success("Customer updated successfully.");
       setIsEditModalOpen(false);
       setSelectedCustomer(null);
       fetchData();
-      setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
-      setError("Failed to update customer.");
+      toast.error("Failed to update customer.");
     }
   };
 
@@ -138,22 +131,6 @@ export default function Customers() {
           <p className="text-muted-foreground text-sm mt-1">Approve, manage, and monitor customer accounts.</p>
         </div>
       </div>
-
-      {/* Toast Messages */}
-      <AnimatePresence>
-        {successMsg && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            className="mb-4 p-3 rounded-xl badge-success text-sm flex items-center gap-2">
-            <CheckCircle size={16} /> {successMsg}
-          </motion.div>
-        )}
-        {error && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            className="mb-4 p-3 rounded-xl badge-danger text-sm flex items-center gap-2">
-            <XCircle size={16} /> {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Tabs & Search */}
       <div className="glass-card rounded-2xl p-1.5 mb-6 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">

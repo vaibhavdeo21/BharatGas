@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Flame, CheckCircle2, MapPin, Truck, ShieldCheck, ChevronRight, CreditCard, Banknote, Loader2, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const CYLINDER_TYPES = [
   { id: 'domestic_14_2', name: '14.2 kg Domestic', type: 'Standard Refill', price: 850.50, basePrice: 760.50, gst: 40.00, delivery: 50.00 },
@@ -160,8 +161,11 @@ export default function BookCylinder() {
                          }, { headers: { Authorization: `Bearer ${token}` } });
                          setBookingData(res.data.booking);
                          setStep(3);
+                         toast.success("Booking confirmed successfully!");
                        } catch (err: any) {
-                         setError(err.response?.data?.message || "Booking failed. Ensure you have an active connection.");
+                         const errorMsg = err.response?.data?.message || "Booking failed. Ensure you have an active connection.";
+                         setError(errorMsg);
+                         toast.error(errorMsg);
                        } finally {
                          setLoading(false);
                        }

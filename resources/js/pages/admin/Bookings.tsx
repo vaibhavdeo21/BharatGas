@@ -32,7 +32,7 @@ export default function Bookings() {
   const safeBookings = Array.isArray(bookings) ? bookings : [];
   const filteredBookings = safeBookings.filter((b: any) => 
     (statusFilter === "All" || b.status === statusFilter) &&
-    (b.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) || b.id?.toString().includes(searchTerm))
+    (b.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || b.id?.toString().includes(searchTerm) || b.booking_reference?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getStatusBadge = (status: string) => {
@@ -101,9 +101,10 @@ export default function Bookings() {
       {/* Content */}
       <div className="glass-card rounded-2xl overflow-hidden">
         {loading ? (
-          <div className="p-16 flex flex-col items-center justify-center">
-            <Loader2 className="animate-spin text-brand-orange-500 mb-3" size={28} />
-            <p className="text-sm text-muted-foreground">Loading bookings...</p>
+          <div className="p-4 space-y-4">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-16 w-full rounded-xl skeleton" />
+            ))}
           </div>
         ) : error ? (
           <div className="p-16 flex flex-col items-center justify-center text-destructive">
@@ -138,16 +139,16 @@ export default function Bookings() {
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="hover:bg-muted/20 transition-colors"
                   >
-                    <td className="px-5 py-3.5 font-mono font-semibold text-sm">{order.id}</td>
-                    <td className="px-5 py-3.5 font-medium">{order.customer_name}</td>
-                    <td className="px-5 py-3.5 text-muted-foreground">{order.type}</td>
-                    <td className="px-5 py-3.5 text-muted-foreground text-xs">{order.date}</td>
+                    <td className="px-5 py-3.5 font-mono font-semibold text-sm">{order.booking_reference || order.id}</td>
+                    <td className="px-5 py-3.5 font-medium">{order.user?.name || 'Unknown'}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">{order.cylinder_type?.replace('_', ' ') || order.type}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground text-xs">{new Date(order.booking_date || order.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3.5">
                       <span className={getStatusBadge(order.status)}>
                         {getStatusIcon(order.status)} {order.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 font-semibold text-right">{order.amount}</td>
+                    <td className="px-5 py-3.5 font-semibold text-right">₹{order.total_amount || order.amount}</td>
                   </motion.tr>
                 ))}
               </tbody>

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { Toaster } from 'react-hot-toast';
 
 // Layouts
 import PublicLayout from "./layouts/PublicLayout";
@@ -14,9 +15,14 @@ import NotFound from "./pages/public/NotFound";
 import CustomerDashboard from "./pages/customer/Dashboard";
 import BookCylinder from "./pages/customer/BookCylinder";
 import TrackDelivery from "./pages/customer/TrackDelivery";
+import CustomerHistory from "./pages/customer/History";
+import CustomerSettings from "./pages/customer/Settings";
 
 // Delivery Pages
 import DeliveryDashboard from "./pages/delivery/Dashboard";
+import DeliveryHistory from "./pages/delivery/History";
+import DeliveryEarnings from "./pages/delivery/Earnings";
+import DeliverySettings from "./pages/delivery/Settings";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -46,9 +52,14 @@ export default function App() {
             <Route path="customer" element={<CustomerDashboard />} />
             <Route path="customer/book" element={<BookCylinder />} />
             <Route path="customer/track" element={<TrackDelivery />} />
+            <Route path="customer/history" element={<CustomerHistory />} />
+            <Route path="customer/settings" element={<CustomerSettings />} />
 
             {/* Delivery Staff */}
             <Route path="delivery" element={<DeliveryDashboard />} />
+            <Route path="delivery/history" element={<DeliveryHistory />} />
+            <Route path="delivery/earnings" element={<DeliveryEarnings />} />
+            <Route path="delivery/settings" element={<DeliverySettings />} />
 
             {/* Admin */}
             <Route path="admin" element={<AdminDashboard />} />
@@ -65,6 +76,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      <Toaster position="top-right" />
     </ThemeProvider>
   );
 }

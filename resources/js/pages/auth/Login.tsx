@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, ArrowRight, ShieldCheck, Phone, User, Shield, Loader2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function Login() {
   const [step, setStep] = useState<"role" | "phone" | "otp" | "register">("role");
@@ -61,12 +62,11 @@ export default function Login() {
         });
         
         setStep("otp");
+        toast.success(`OTP sent to +91 ${phone}`);
     } catch (err: any) {
-        if (err.response && err.response.data && err.response.data.message) {
-            setError(err.response.data.message);
-        } else {
-            setError("Failed to register OTP dispatch. Check number details.");
-        }
+        const errorMsg = err.response?.data?.message || "Failed to register OTP dispatch. Check number details.";
+        setError(errorMsg);
+        toast.error(errorMsg);
     } finally {
         setLoading(false);
     }
@@ -86,7 +86,9 @@ export default function Login() {
             address: regAddress
         });
         
-        setError(response.data.message || "Registration successful! Pending admin approval.");
+        const successMsg = response.data.message || "Registration successful! Pending admin approval.";
+        setError(successMsg);
+        toast.success(successMsg, { duration: 5000 });
         setStep("phone"); // Send back to login step where they can see the message
         
         // Reset form
@@ -95,11 +97,9 @@ export default function Login() {
         setRegEmail("");
         setRegAddress("");
     } catch (err: any) {
-        if (err.response && err.response.data && err.response.data.message) {
-            setError(err.response.data.message);
-        } else {
-            setError("Registration failed. Please check your details.");
-        }
+        const errorMsg = err.response?.data?.message || "Registration failed. Please check your details.";
+        setError(errorMsg);
+        toast.error(errorMsg);
     } finally {
         setLoading(false);
     }
@@ -141,12 +141,11 @@ export default function Login() {
         } else {
             navigate("/dashboard/customer");
         }
+        toast.success("Successfully verified! Welcome back.");
     } catch (err: any) {
-        if (err.response && err.response.data && err.response.data.message) {
-            setError(err.response.data.message);
-        } else {
-            setError("Invalid verification pin. Try requesting a new handle code.");
-        }
+        const errorMsg = err.response?.data?.message || "Invalid verification pin. Try requesting a new handle code.";
+        setError(errorMsg);
+        toast.error(errorMsg);
     } finally {
         setLoading(false);
     }
