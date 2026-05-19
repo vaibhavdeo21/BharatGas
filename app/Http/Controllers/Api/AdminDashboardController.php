@@ -340,6 +340,23 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Get all approved customer accounts
+     */
+    public function getApprovedCustomers(Request $request)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $approvedUsers = User::where('role', 'customer')
+                            ->where('is_approved', true)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+        return response()->json(['customers' => $approvedUsers]);
+    }
+
+    /**
      * Approve a pending customer
      */
     public function approveCustomer(Request $request, $id)

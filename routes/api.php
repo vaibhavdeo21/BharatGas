@@ -81,7 +81,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // --- CUSTOMER APPROVALS ---
         Route::get('/customers/pending', [AdminDashboardController::class, 'getPendingCustomers']);
+        Route::get('/customers/approved', [AdminDashboardController::class, 'getApprovedCustomers']);
         Route::post('/customers/{id}/approve', [AdminDashboardController::class, 'approveCustomer']);
         Route::delete('/customers/{id}/reject', [AdminDashboardController::class, 'rejectCustomer']);
+
+        // --- BOOKINGS (admin view) ---
+        Route::get('/bookings', [BookingController::class, 'index']);
     });
 });
