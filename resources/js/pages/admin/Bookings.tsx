@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2, AlertCircle, Eye, Inbox, RefreshCw, Clock, Truck, CheckCircle2, XCircle } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function Bookings() {
   const [bookings, setBookings] = useState([]);
+  const [staff, setStaff] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,8 +19,13 @@ export default function Bookings() {
       const response = await axios.get('/api/admin/bookings', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      const staffRes = await axios.get('/api/admin/staff', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
       const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
       setBookings(data);
+      setStaff(staffRes.data.staff || []);
       setError(null);
     } catch (err: any) {
       setError("Failed to load bookings. Please check your connection.");
@@ -48,9 +55,23 @@ export default function Bookings() {
   const getStatusIcon = (status: string) => {
     switch(status) {
       case "delivered": case "Delivered": return <CheckCircle2 size={10} />;
-      case "en_route": case "En Route": return <Truck size={10} />;
+      case "en_route": case "En Route": case "out_for_delivery": return <Truck size={10} />;
       case "cancelled": case "Cancelled": return <XCircle size={10} />;
       default: return <Clock size={10} />;
+    }
+  };
+
+  const handleAssign = async (bookingId: number, staffId: string) => {
+    if (!staffId) return;
+    try {
+      const token = localStorage.getItem('auth_token');
+      await axios.post(`/api/bookings/${bookingId}/assign`, { delivery_staff_id: staffId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Delivery agent assigned successfully!");
+      fetchBookings();
+    } catch (err) {
+      toast.error("Failed to assign delivery agent.");
     }
   };
 
@@ -130,6 +151,7 @@ export default function Bookings() {
                   <th className="px-5 py-3.5 text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider">Date</th>
                   <th className="px-5 py-3.5 text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider">Status</th>
                   <th className="px-5 py-3.5 text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="px-5 py-3.5 text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/30">
@@ -149,6 +171,24 @@ export default function Bookings() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 font-semibold text-right">₹{order.total_amount || order.amount}</td>
+                    <td className="px-5 py-3.5 text-right">
+                      {order.status === 'pending' || order.status === 'confirmed' ? (
+                        <select 
+                          className="px-2 py-1.5 rounded-lg border border-border/50 bg-muted/30 text-xs outline-none focus:ring-1 focus:ring-brand-orange-500/30"
+                          onChange={(e) => handleAssign(order.id, e.target.value)}
+                          defaultValue=""
+                        >
+                          <option value="" disabled>Assign Agent</option>
+                          {staff.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                          ))}
+                        </select>
+                      ) : order.delivery ? (
+                        <span className="text-xs text-muted-foreground">Assigned to ID:{order.delivery.delivery_staff_id}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">N/A</span>
+                      )}
+                    </td>
                   </motion.tr>
                 ))}
               </tbody>

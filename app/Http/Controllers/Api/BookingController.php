@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\GasConnection;
+use App\Models\Delivery;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -130,5 +132,70 @@ class BookingController extends Controller
             ->get();
 
         return response()->json($bookings);
+    }
+
+    /**
+     * Assign a delivery agent to this booking.
+     */
+    public function assignDelivery(Request $request, Booking $booking)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'delivery_staff_id' => 'required|exists:users,id',
+        ]);
+
+        $staff = User::where('id', $validated['delivery_staff_id'])->whereIn('role', ['delivery', 'delivery_staff', 'admin'])->first();
+        if (!$staff) {
+            return response()->json(['message' => 'Invalid delivery staff member.'], 400);
+        }
+
+        // Check if delivery already exists
+        $delivery = Delivery::where('booking_id', $booking->id)->first();
+        
+        if ($delivery) {
+            $delivery->update([
+                'delivery_staff_id' => $staff->id,
+                'status' => 'assigned',
+            ]);
+        } else {
+            Delivery::create([
+                'booking_id' => $booking->id,
+                'delivery_staff_id' => $staff->id,
+                'status' => 'assigned',
+            ]);
+        }
+
+        $booking->update(['status' => 'out_for_delivery']);
+
+        return response()->json([
+            'message' => 'Delivery staff assigned successfully.',
+            'booking' => $booking->fresh(['delivery']),
+        ]);
+    }
+
+    /**
+     * Customer confirms they received the cylinder.
+     */
+    public function confirmReceipt(Request $request, Booking $booking)
+    {
+        if ($booking->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($booking->status !== 'delivered') {
+            return response()->json(['message' => 'Booking must be delivered before confirming receipt.'], 400);
+        }
+
+        $booking->update([
+            'customer_confirmed' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Receipt confirmed successfully.',
+            'booking' => $booking,
+        ]);
     }
 }

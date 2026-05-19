@@ -8,22 +8,36 @@ export default function History() {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await axios.get('/api/customer/bookings/history', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setHistory(res.data.data || res.data || []);
+    } catch (err) {
+      toast.error("Failed to load order history.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const token = localStorage.getItem('auth_token');
-        const res = await axios.get('/api/customer/bookings/history', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setHistory(res.data.data || res.data || []);
-      } catch (err) {
-        toast.error("Failed to load order history.");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchHistory();
   }, []);
+
+  const handleConfirmReceipt = async (id: number) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      await axios.post(`/api/customer/bookings/${id}/confirm`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Delivery receipt confirmed! Thank you.");
+      fetchHistory(); // refresh the list
+    } catch (err) {
+      toast.error("Failed to confirm receipt.");
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -91,11 +105,25 @@ export default function History() {
                     </td>
                     <td className="px-5 py-4 font-semibold">₹{order.total_amount}</td>
                     <td className="px-5 py-4">{getStatusBadge(order.status)}</td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4 text-right flex flex-col gap-2 items-end">
                       {order.status === 'delivered' ? (
-                        <button className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors inline-flex items-center gap-1.5 text-xs font-semibold" title="Download Invoice">
-                          <Download size={14} /> PDF
-                        </button>
+                        <>
+                          <button className="p-1.5 rounded-lg text-blue-500 hover:bg-blue-500/10 transition-colors inline-flex items-center gap-1.5 text-xs font-semibold" title="Download Invoice">
+                            <Download size={14} /> PDF
+                          </button>
+                          {!order.customer_confirmed ? (
+                            <button 
+                              onClick={() => handleConfirmReceipt(order.id)}
+                              className="px-3 py-1.5 rounded-lg bg-brand-orange-500 text-white text-xs font-bold shadow-lg shadow-brand-orange-500/30 hover:bg-brand-orange-600 transition-colors inline-flex items-center gap-1"
+                            >
+                              <CheckCircle2 size={12} /> Confirm Receipt
+                            </button>
+                          ) : (
+                            <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1 uppercase tracking-wide">
+                              <ShieldCheck size={12} /> Confirmed by you
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span className="text-xs text-muted-foreground/50">Pending</span>
                       )}

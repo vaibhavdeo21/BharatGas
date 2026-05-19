@@ -37,7 +37,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Bookings
     Route::apiResource('bookings', BookingController::class);
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel']);
+    Route::post('/bookings/{booking}/assign', [BookingController::class, 'assignDelivery']);
     Route::get('/customer/bookings/history', [BookingController::class, 'history']);
+    Route::post('/customer/bookings/{booking}/confirm', [BookingController::class, 'confirmReceipt']);
 
     // Deliveries
     Route::get('/deliveries/assigned', [DeliveryController::class, 'assigned']);
