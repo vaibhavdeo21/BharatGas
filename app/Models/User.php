@@ -28,6 +28,10 @@ class User extends Authenticatable
         'address',
         'is_active',
         'is_approved',
+        'aadhaar_number',
+        'pan_number',
+        'profile_photo',
+        'account_status',
     ];
 
     /**

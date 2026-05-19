@@ -37,8 +37,8 @@ export default function DashboardLayout() {
     if (stored) setUserData(JSON.parse(stored));
   }, []);
 
-  const role = location.pathname.includes("/admin") ? "admin" : "customer";
-  const userName = userData?.name || (role === "admin" ? "Admin" : "Customer");
+  const role = location.pathname.includes("/admin") ? "admin" : location.pathname.includes("/delivery") ? "delivery" : "customer";
+  const userName = userData?.name || (role === "admin" ? "Admin" : role === "delivery" ? "Driver" : "Customer");
 
   const customerLinks = [
     { name: "Dashboard", href: "/dashboard/customer", icon: LayoutDashboard },
@@ -59,7 +59,14 @@ export default function DashboardLayout() {
     { name: "Settings", href: "/dashboard/admin/settings", icon: Settings },
   ];
 
-  const links = role === "admin" ? adminLinks : customerLinks;
+  const deliveryLinks = [
+    { name: "Today's Route", href: "/dashboard/delivery", icon: MapPin },
+    { name: "History", href: "/dashboard/delivery/history", icon: ClipboardList },
+    { name: "Earnings", href: "/dashboard/delivery/earnings", icon: IndianRupee },
+    { name: "Settings", href: "/dashboard/delivery/settings", icon: Settings },
+  ];
+
+  const links = role === "admin" ? adminLinks : role === "delivery" ? deliveryLinks : customerLinks;
 
   useEffect(() => {
     setMobileSidebarOpen(false);
@@ -165,7 +172,7 @@ export default function DashboardLayout() {
         initial={false}
         animate={{ width: sidebarOpen ? 260 : 72 }}
         transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-        className="hidden lg:flex flex-col border-r border-border/50 bg-card/50 backdrop-blur-xl z-20 h-screen sticky top-0"
+        className="hidden lg:flex flex-col border-r border-border bg-card z-20 h-screen sticky top-0"
       >
         <SidebarContent />
       </motion.aside>
@@ -179,14 +186,14 @@ export default function DashboardLayout() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileSidebarOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 z-40 lg:hidden" style={{ background: 'var(--overlay-bg)', backdropFilter: 'blur(4px)' }}
             />
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-              className="fixed inset-y-0 left-0 w-72 bg-card border-r border-border/50 z-50 flex flex-col shadow-2xl lg:hidden"
+              className="fixed inset-y-0 left-0 w-72 bg-card border-r border-border z-50 flex flex-col shadow-2xl lg:hidden"
             >
               <SidebarContent isMobile />
             </motion.aside>
@@ -197,7 +204,7 @@ export default function DashboardLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Header */}
-        <header className="h-14 border-b border-border/50 bg-card/30 backdrop-blur-xl flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
+        <header className="h-14 border-b border-border bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setMobileSidebarOpen(true)}

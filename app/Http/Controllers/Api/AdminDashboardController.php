@@ -396,4 +396,56 @@ class AdminDashboardController extends Controller
 
         return response()->json(['message' => 'Customer registration rejected.']);
     }
+
+    /**
+     * Update customer details and status
+     */
+    public function updateCustomer(Request $request, $id)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        
+        if ($user->role !== 'customer') {
+            return response()->json(['message' => 'Invalid user role'], 400);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'phone' => 'sometimes|required|size:10|unique:users,phone,' . $user->id,
+            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
+            'address' => 'sometimes|required|string',
+            'aadhaar_number' => 'nullable|string|max:20',
+            'pan_number' => 'nullable|string|max:20',
+            'account_status' => 'sometimes|required|in:active,suspended',
+        ]);
+
+        $user->update($request->only([
+            'name', 'phone', 'email', 'address', 'aadhaar_number', 'pan_number', 'account_status'
+        ]));
+
+        return response()->json(['message' => 'Customer updated successfully', 'customer' => $user]);
+    }
+
+    /**
+     * Delete customer account
+     */
+    public function deleteCustomer(Request $request, $id)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        
+        if ($user->role !== 'customer') {
+            return response()->json(['message' => 'Invalid user role'], 400);
+        }
+
+        $user->delete(); // Soft delete
+
+        return response()->json(['message' => 'Customer account deleted successfully.']);
+    }
 }

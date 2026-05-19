@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  IndianRupee, TrendingUp, TrendingDown, ArrowUpRight, 
+import {
+  IndianRupee, TrendingUp, TrendingDown, ArrowUpRight,
   Wallet, Receipt, CreditCard, BarChart3, Inbox
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -22,7 +22,7 @@ export default function Accounting() {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         const revRes = await axios.get('/api/admin/stats/revenue', config).catch(() => ({ data: [] }));
         setRevenueData(Array.isArray(revRes.data) ? revRes.data : []);
-      } catch {} finally { setLoading(false); }
+      } catch { } finally { setLoading(false); }
     };
     fetchData();
   }, []);
@@ -54,7 +54,7 @@ export default function Accounting() {
       {/* KPI Cards */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1,2,3,4].map(i => <div key={i} className="h-28 rounded-2xl skeleton" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-28 rounded-2xl skeleton" />)}
         </div>
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -90,20 +90,20 @@ export default function Accounting() {
               <p className="text-xs text-muted-foreground">Financial performance over time</p>
             </div>
           </div>
-          
+
           {revenueData.length > 0 ? (
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevAcct" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickFormatter={(val) => `₹${val/1000}k`} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickFormatter={(val) => `₹${val / 1000}k`} />
                   <Tooltip contentStyle={{ backgroundColor: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '13px' }} itemStyle={{ color: 'var(--foreground)', fontWeight: 'bold' }} />
                   <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevAcct)" />
                 </AreaChart>
@@ -124,7 +124,7 @@ export default function Accounting() {
             </div>
             <h3 className="font-bold text-base">Financial Summary</h3>
           </div>
-          
+
           <div className="space-y-3 flex-1">
             {[
               { label: "Total Collections", value: "₹0", icon: Receipt, color: "text-emerald-400 bg-emerald-500/10" },

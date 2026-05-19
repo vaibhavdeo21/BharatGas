@@ -20,7 +20,8 @@ class GasConnection extends Model
         'cylinders_held',
         'regulator_number',
         'status',
-        'kyc_verified_at'
+        'kyc_verified_at',
+        'cylinder_type'
     ];
 
     protected $casts = [

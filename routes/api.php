@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/customer/bookings/history', [BookingController::class, 'history']);
 
     // Deliveries
+    Route::get('/deliveries/assigned', [DeliveryController::class, 'assigned']);
     Route::apiResource('deliveries', DeliveryController::class);
     Route::post('/deliveries/{delivery}/assign', [DeliveryController::class, 'assign']);
     Route::post('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus']);
@@ -84,6 +85,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/customers/approved', [AdminDashboardController::class, 'getApprovedCustomers']);
         Route::post('/customers/{id}/approve', [AdminDashboardController::class, 'approveCustomer']);
         Route::delete('/customers/{id}/reject', [AdminDashboardController::class, 'rejectCustomer']);
+        Route::put('/customers/{id}', [AdminDashboardController::class, 'updateCustomer']);
+        Route::delete('/customers/{id}', [AdminDashboardController::class, 'deleteCustomer']);
 
         // --- BOOKINGS (admin view) ---
         Route::get('/bookings', [BookingController::class, 'index']);

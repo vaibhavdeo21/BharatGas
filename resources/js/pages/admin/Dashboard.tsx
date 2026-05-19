@@ -93,17 +93,14 @@ export default function AdminDashboard() {
               key={i} 
               className={`glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-white/10 transition-all duration-300 cursor-default ${kpi.glow}`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${kpi.bg} opacity-50`} />
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-3">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.bg} flex items-center justify-center ${kpi.color} group-hover:scale-105 transition-transform`}>
-                    <kpi.icon size={20} />
-                  </div>
-                  <ArrowUpRight size={14} className="text-muted-foreground/30" />
+              <div className="flex justify-between items-start mb-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${kpi.color}`} style={{ background: 'var(--muted)' }}>
+                  <kpi.icon size={20} />
                 </div>
-                <h3 className="text-2xl font-bold mb-0.5">{kpi.value}</h3>
-                <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
+                <ArrowUpRight size={14} className="text-muted-foreground/30" />
               </div>
+              <h3 className="text-2xl font-bold mb-0.5">{kpi.value}</h3>
+              <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
             </motion.div>
           ))}
         </motion.div>

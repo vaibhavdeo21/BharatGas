@@ -180,7 +180,7 @@ export default function Inventory() {
       <AnimatePresence>
         {isTruckModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !submitting && setIsTruckModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !submitting && setIsTruckModalOpen(false)} className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-bg)' }} />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-xl glass-panel p-6 z-10 rounded-2xl flex flex-col max-h-[90vh]">
               <div className="flex justify-between items-center mb-6 shrink-0">
                 <div><h3 className="text-xl font-bold">Inward Plant Truck</h3><p className="text-sm text-muted-foreground">Log received cylinders and returned empties.</p></div>

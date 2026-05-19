@@ -124,11 +124,11 @@
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.06);
     --glass-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    --glass-card-bg: rgba(17, 17, 19, 0.8);
-    --glass-card-border: rgba(255, 255, 255, 0.05);
-    --glass-card-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 40px rgba(0,0,0,0.25);
-    --glass-panel-bg: rgba(17, 17, 19, 0.9);
-    --glass-panel-border: rgba(255, 255, 255, 0.07);
+    --glass-card-bg: #141416;
+    --glass-card-border: rgba(255, 255, 255, 0.06);
+    --glass-card-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 4px 24px rgba(0,0,0,0.2);
+    --glass-panel-bg: #141416;
+    --glass-panel-border: rgba(255, 255, 255, 0.08);
     --overlay-bg: rgba(0,0,0, 0.6);
     --gradient-mesh-1: rgba(247, 91, 17, 0.04);
     --gradient-mesh-2: rgba(59, 130, 246, 0.03);

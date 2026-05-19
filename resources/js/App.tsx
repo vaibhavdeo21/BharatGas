@@ -15,6 +15,9 @@ import CustomerDashboard from "./pages/customer/Dashboard";
 import BookCylinder from "./pages/customer/BookCylinder";
 import TrackDelivery from "./pages/customer/TrackDelivery";
 
+// Delivery Pages
+import DeliveryDashboard from "./pages/delivery/Dashboard";
+
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminInventory from "./pages/admin/Inventory";
@@ -43,6 +46,9 @@ export default function App() {
             <Route path="customer" element={<CustomerDashboard />} />
             <Route path="customer/book" element={<BookCylinder />} />
             <Route path="customer/track" element={<TrackDelivery />} />
+
+            {/* Delivery Staff */}
+            <Route path="delivery" element={<DeliveryDashboard />} />
 
             {/* Admin */}
             <Route path="admin" element={<AdminDashboard />} />
