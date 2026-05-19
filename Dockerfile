@@ -30,7 +30,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install Node.js & NPM for compiled React frontend
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
 # Set working directory
