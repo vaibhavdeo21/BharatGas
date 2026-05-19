@@ -44,9 +44,10 @@ export default function DashboardLayout() {
   const adminLinks = [
     { name: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
     { name: "Bookings", href: "/dashboard/admin/bookings", icon: ClipboardList },
+    { name: "Customers", href: "/dashboard/admin/customers", icon: User }, // <-- Added Customers
     { name: "Inventory", href: "/dashboard/admin/inventory", icon: Package },
     { name: "Logistics", href: "/dashboard/admin/logistics", icon: MapPin },
-    { name: "Team & Staff", href: "/dashboard/admin/staff", icon: Users }, // <-- Added your new Staff Page link here
+    { name: "Team & Staff", href: "/dashboard/admin/staff", icon: Users },
     { name: "Settings", href: "/dashboard/admin/settings", icon: Settings },
   ];
 

@@ -27,6 +27,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'is_active',
+        'is_approved',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'is_approved' => 'boolean',
     ];
 
     /**

@@ -317,4 +317,66 @@ class AdminDashboardController extends Controller
 
         return response()->json(['message' => 'Staff member removed successfully.']);
     }
+
+    // ==========================================
+    // NEW: CUSTOMER APPROVAL MANAGEMENT
+    // ==========================================
+
+    /**
+     * Get all pending customer registrations
+     */
+    public function getPendingCustomers(Request $request)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $pendingUsers = User::where('role', 'customer')
+                            ->where('is_approved', false)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+        return response()->json(['customers' => $pendingUsers]);
+    }
+
+    /**
+     * Approve a pending customer
+     */
+    public function approveCustomer(Request $request, $id)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        
+        if ($user->role !== 'customer') {
+            return response()->json(['message' => 'Invalid user role'], 400);
+        }
+
+        $user->is_approved = true;
+        $user->save();
+
+        return response()->json(['message' => 'Customer account approved successfully.']);
+    }
+
+    /**
+     * Reject and delete a pending customer
+     */
+    public function rejectCustomer(Request $request, $id)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        
+        if ($user->role !== 'customer') {
+            return response()->json(['message' => 'Invalid user role'], 400);
+        }
+
+        $user->forceDelete(); // Delete the unapproved user permanently
+
+        return response()->json(['message' => 'Customer registration rejected.']);
+    }
 }

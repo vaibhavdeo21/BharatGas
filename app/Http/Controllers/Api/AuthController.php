@@ -24,6 +24,12 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
         
+        if (!$user->is_approved) {
+            return response()->json([
+                'message' => 'Your account is pending admin approval. Please check back later.'
+            ], 403);
+        }
+        
         // Generate Real 6-digit OTP
         $otp = rand(100000, 999999);
 
@@ -74,6 +80,12 @@ class AuthController extends Controller
         if ($request->phone === '9999999999' && $request->otp === '111111') {
             $user = User::where('phone', $request->phone)->first();
             
+            if (!$user->is_approved) {
+                return response()->json([
+                    'message' => 'Your account is pending admin approval. Please check back later.'
+                ], 403);
+            }
+            
             // Issue Laravel Sanctum Token
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -97,6 +109,12 @@ class AuthController extends Controller
         // OTP is valid! Find user and generate token.
         $user = User::where('phone', $request->phone)->first();
         
+        if (!$user->is_approved) {
+            return response()->json([
+                'message' => 'Your account is pending admin approval. Please check back later.'
+            ], 403);
+        }
+        
         // Clear the cache so OTP cannot be reused
         Cache::forget('login_otp_' . $request->phone);
 
@@ -109,6 +127,34 @@ class AuthController extends Controller
             'role' => $user->role,
             'token' => $token
         ]);
+    }
+
+    /**
+     * Customer Registration (Pending Approval)
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|size:10|unique:users,phone',
+            'email' => 'required|email|unique:users,email',
+            'address' => 'required|string|max:1000'
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'address' => $request->address,
+            'password' => bcrypt(str()->random(12)), // Dummy password, using OTP for login
+            'role' => 'customer',
+            'is_approved' => false,
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Registration successful! Your account is pending admin approval.'
+        ], 201);
     }
 
     /**

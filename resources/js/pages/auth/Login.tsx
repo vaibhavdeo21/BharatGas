@@ -5,10 +5,16 @@ import { Flame, ArrowRight, ShieldCheck, Phone, User, Shield, Loader2 } from "lu
 import axios from "axios";
 
 export default function Login() {
-  const [step, setStep] = useState<"role" | "phone" | "otp">("role");
+  const [step, setStep] = useState<"role" | "phone" | "otp" | "register">("role");
   const [role, setRole] = useState<"customer" | "admin" | "delivery" | "">("");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  
+  // Registration States
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regAddress, setRegAddress] = useState("");
   
   // Timer State
   const [timer, setTimer] = useState(30);
@@ -59,6 +65,39 @@ export default function Login() {
             setError(err.response.data.message);
         } else {
             setError("Failed to register OTP dispatch. Check number details.");
+        }
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  // --- Real API Step: Register New Customer ---
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+        const response = await axios.post('/api/auth/register', {
+            name: regName,
+            phone: regPhone,
+            email: regEmail,
+            address: regAddress
+        });
+        
+        setError(response.data.message || "Registration successful! Pending admin approval.");
+        setStep("phone"); // Send back to login step where they can see the message
+        
+        // Reset form
+        setRegName("");
+        setRegPhone("");
+        setRegEmail("");
+        setRegAddress("");
+    } catch (err: any) {
+        if (err.response && err.response.data && err.response.data.message) {
+            setError(err.response.data.message);
+        } else {
+            setError("Registration failed. Please check your details.");
         }
     } finally {
         setLoading(false);
@@ -234,8 +273,13 @@ export default function Login() {
                 >
                   {loading ? <Loader2 className="animate-spin" size={20} /> : <>{'Send OTP'} <ArrowRight size={20} /></>}
                 </button>
-                <div className="text-center">
-                  <button type="button" onClick={() => setStep("role")} className="text-sm font-medium text-muted-foreground hover:text-foreground">Change Role</button>
+                <div className="text-center space-y-3">
+                  <button type="button" onClick={() => setStep("role")} className="text-sm font-medium text-muted-foreground hover:text-foreground block w-full">Change Role</button>
+                  {role === "customer" && (
+                    <button type="button" onClick={() => { setStep("register"); setError(""); }} className="text-sm font-medium text-brand-orange-500 hover:text-brand-orange-600 block w-full">
+                      Don't have an account? Register here
+                    </button>
+                  )}
                 </div>
               </motion.form>
             )}
@@ -299,6 +343,75 @@ export default function Login() {
                       Resend Code
                     </button>
                   )}
+                </div>
+              </motion.form>
+            )}
+
+            {step === "register" && (
+              <motion.form
+                key="register"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                onSubmit={handleRegister}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm font-medium mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:ring-2 focus:ring-brand-orange-500 focus:border-brand-orange-500 outline-none transition-all font-medium"
+                    placeholder="Enter full name"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Mobile Number</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={10}
+                    className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:ring-2 focus:ring-brand-orange-500 focus:border-brand-orange-500 outline-none transition-all font-medium"
+                    placeholder="Enter 10-digit number"
+                    value={regPhone}
+                    onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, ''))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:ring-2 focus:ring-brand-orange-500 focus:border-brand-orange-500 outline-none transition-all font-medium"
+                    placeholder="Enter email address"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Full Address</label>
+                  <textarea
+                    required
+                    rows={2}
+                    className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:ring-2 focus:ring-brand-orange-500 focus:border-brand-orange-500 outline-none transition-all font-medium resize-none"
+                    placeholder="Enter complete delivery address"
+                    value={regAddress}
+                    onChange={(e) => setRegAddress(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading || regPhone.length < 10 || !regName || !regEmail || !regAddress}
+                  className="w-full py-3.5 mt-2 rounded-xl bg-foreground text-background font-bold text-lg hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={20} /> : 'Submit Registration'}
+                </button>
+                <div className="text-center mt-4">
+                  <button type="button" onClick={() => setStep("phone")} className="text-sm font-medium text-muted-foreground hover:text-foreground block w-full">
+                    Already have an account? Login
+                  </button>
                 </div>
               </motion.form>
             )}

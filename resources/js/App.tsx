@@ -20,6 +20,7 @@ import AdminLogistics from "./pages/admin/Logistics";
 import AdminSettings from "./pages/admin/Settings";
 import StaffManagement from "./pages/admin/Staff";
 import Bookings from "./pages/admin/Bookings";
+import AdminCustomers from "./pages/admin/Customers";
 
 // Temporary Placeholder Component for unfinished pages
 const ComingSoon = ({ title }: { title: string }) => (
@@ -61,6 +62,7 @@ export default function App() {
             {/* Admin Routes */}
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="admin/bookings" element={<Bookings />} />
+            <Route path="admin/customers" element={<AdminCustomers />} />
             <Route path="admin/inventory" element={<AdminInventory />} />
             <Route path="admin/logistics" element={<AdminLogistics />} />
             <Route path="admin/settings" element={<AdminSettings />} />

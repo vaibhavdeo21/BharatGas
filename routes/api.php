@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\AdminDashboardController;
 Route::prefix('auth')->group(function () {
     Route::post('/login/request-otp', [AuthController::class, 'requestOtp']);
     Route::post('/login/verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
 // Protected Endpoints
@@ -77,5 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/staff', [AdminDashboardController::class, 'getStaff']);
         Route::post('/staff', [AdminDashboardController::class, 'addStaff']);
         Route::delete('/staff/{id}', [AdminDashboardController::class, 'deleteStaff']);
+
+        // --- CUSTOMER APPROVALS ---
+        Route::get('/customers/pending', [AdminDashboardController::class, 'getPendingCustomers']);
+        Route::post('/customers/{id}/approve', [AdminDashboardController::class, 'approveCustomer']);
+        Route::delete('/customers/{id}/reject', [AdminDashboardController::class, 'rejectCustomer']);
     });
 });
