@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, CheckCircle2, MapPin, Truck, ShieldCheck, ChevronRight, CreditCard, Banknote, Loader2 } from "lucide-react";
+import { Flame, CheckCircle2, MapPin, Truck, ShieldCheck, ChevronRight, CreditCard, Banknote, Loader2, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+const CYLINDER_TYPES = [
+  { id: 'domestic_14_2', name: '14.2 kg Domestic', type: 'Standard Refill', price: 850.50, basePrice: 760.50, gst: 40.00, delivery: 50.00 },
+  { id: 'commercial_19', name: '19 kg Commercial', type: 'Commercial Refill', price: 1750.00, basePrice: 1550.00, gst: 100.00, delivery: 100.00 },
+  { id: 'domestic_5', name: '5 kg Domestic', type: 'Small Refill', price: 450.00, basePrice: 400.00, gst: 20.00, delivery: 30.00 }
+];
+
 export default function BookCylinder() {
   const [step, setStep] = useState(1);
+  const [selectedCylinder, setSelectedCylinder] = useState(CYLINDER_TYPES[0]);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +33,7 @@ export default function BookCylinder() {
         {/* Left Side - Form Steps */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* Step 1: Confirmation */}
+          {/* Step 1: Cylinder Selection & Confirmation */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -52,29 +59,33 @@ export default function BookCylinder() {
                    </div>
                  </div>
                  
-                 <div className="bg-muted p-4 rounded-2xl border flex gap-4 items-center">
-                   <div className="w-12 h-12 rounded-full bg-brand-orange-500/10 flex items-center justify-center border border-brand-orange-500/20">
-                     <Flame className="text-brand-orange-500" />
-                   </div>
-                   <div className="flex-1">
-                     <p className="font-bold">14.2 kg Domestic Cylinder</p>
-                     <p className="text-sm text-muted-foreground">Standard Refill</p>
-                   </div>
-                   <div className="text-right">
-                     <p className="font-bold text-lg">₹942.00</p>
-                   </div>
+                 <div>
+                    <h3 className="font-bold text-sm text-muted-foreground mb-3 uppercase tracking-wider">Select Cylinder Type</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {CYLINDER_TYPES.map(cylinder => (
+                            <button
+                                key={cylinder.id}
+                                onClick={() => setSelectedCylinder(cylinder)}
+                                className={`text-left p-4 rounded-2xl border-2 transition-all ${selectedCylinder.id === cylinder.id ? 'border-brand-orange-500 bg-brand-orange-50 dark:bg-brand-orange-950/30' : 'border-border hover:border-brand-orange-300 bg-background'}`}
+                            >
+                                <Package className={`mb-3 ${selectedCylinder.id === cylinder.id ? 'text-brand-orange-500' : 'text-muted-foreground'}`} />
+                                <p className="font-bold text-sm mb-1">{cylinder.name}</p>
+                                <p className="font-bold text-lg text-brand-orange-500">₹{cylinder.price.toFixed(2)}</p>
+                            </button>
+                        ))}
+                    </div>
                  </div>
 
                  <button 
                    onClick={() => setStep(2)}
-                   className="w-full py-4 rounded-xl bg-foreground text-background font-bold text-lg hover:bg-foreground/90 transition-colors shadow-lg"
+                   className="w-full py-4 rounded-xl bg-foreground text-background font-bold text-lg hover:bg-foreground/90 transition-colors shadow-lg mt-4"
                  >
                    Confirm Details
                  </button>
                </motion.div>
              ) : (
                <div className="pl-11 text-muted-foreground text-sm flex items-center gap-2">
-                 <CheckCircle2 size={16} className="text-green-500" /> Details confirmed
+                 <CheckCircle2 size={16} className="text-green-500" /> {selectedCylinder.name} - Confirmed
                </div>
              )}
           </motion.div>
@@ -98,7 +109,7 @@ export default function BookCylinder() {
                  
                  <button 
                    onClick={() => setPaymentMethod('cod')}
-                   className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'cod' ? 'border-brand-orange-500 bg-brand-orange-50 dark:bg-brand-orange-950/20' : 'border-border hover:border-brand-orange-300'}`}
+                   className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'cod' ? 'border-brand-orange-500 bg-brand-orange-50 dark:bg-brand-orange-950/20' : 'border-border hover:border-brand-orange-300 bg-background'}`}
                  >
                    <div className="flex items-center gap-4">
                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${paymentMethod === 'cod' ? 'bg-brand-orange-500/20 text-brand-orange-600' : 'bg-muted text-muted-foreground'}`}>
@@ -116,7 +127,7 @@ export default function BookCylinder() {
 
                  <button 
                    onClick={() => setPaymentMethod('online')}
-                   className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'online' ? 'border-brand-orange-500 bg-brand-orange-50 dark:bg-brand-orange-950/20' : 'border-border hover:border-brand-orange-300'}`}
+                   className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'online' ? 'border-brand-orange-500 bg-brand-orange-50 dark:bg-brand-orange-950/20' : 'border-border hover:border-brand-orange-300 bg-background'}`}
                  >
                    <div className="flex items-center gap-4">
                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${paymentMethod === 'online' ? 'bg-brand-orange-500/20 text-brand-orange-600' : 'bg-muted text-muted-foreground'}`}>
@@ -144,7 +155,7 @@ export default function BookCylinder() {
                        try {
                          const token = localStorage.getItem('auth_token');
                          const res = await axios.post('/api/bookings', {
-                           cylinder_type: 'domestic_14_2',
+                           cylinder_type: selectedCylinder.id,
                            quantity: 1
                          }, { headers: { Authorization: `Bearer ${token}` } });
                          setBookingData(res.data.booking);
@@ -158,7 +169,7 @@ export default function BookCylinder() {
                      disabled={loading}
                      className="w-full py-4 rounded-xl bg-brand-orange-500 text-white font-bold text-lg hover:bg-brand-orange-600 transition-colors shadow-lg shadow-brand-orange-500/25 flex items-center justify-center gap-2 disabled:opacity-70"
                    >
-                     {loading ? <Loader2 className="animate-spin" /> : paymentMethod === 'online' ? 'Proceed to Pay ₹942' : 'Book Cylinder Now'} 
+                     {loading ? <Loader2 className="animate-spin" /> : paymentMethod === 'online' ? `Proceed to Pay ₹${selectedCylinder.price.toFixed(2)}` : 'Book Cylinder Now'} 
                      {!loading && <ChevronRight size={20} />}
                    </button>
                  </div>
@@ -219,27 +230,23 @@ export default function BookCylinder() {
              
              <div className="space-y-4 mb-6">
                <div className="flex justify-between text-sm">
-                 <span className="text-muted-foreground">Base Price (14.2kg)</span>
-                 <span className="font-medium">₹842.00</span>
+                 <span className="text-muted-foreground">Base Price ({selectedCylinder.name})</span>
+                 <span className="font-medium">₹{selectedCylinder.basePrice.toFixed(2)}</span>
                </div>
                <div className="flex justify-between text-sm">
-                 <span className="text-muted-foreground">CGST (2.5%)</span>
-                 <span className="font-medium">₹21.05</span>
-               </div>
-               <div className="flex justify-between text-sm">
-                 <span className="text-muted-foreground">SGST (2.5%)</span>
-                 <span className="font-medium">₹21.05</span>
+                 <span className="text-muted-foreground">Estimated GST</span>
+                 <span className="font-medium">₹{selectedCylinder.gst.toFixed(2)}</span>
                </div>
                <div className="flex justify-between text-sm">
                  <span className="text-muted-foreground">Delivery Charges</span>
-                 <span className="font-medium">₹57.90</span>
+                 <span className="font-medium">₹{selectedCylinder.delivery.toFixed(2)}</span>
                </div>
              </div>
 
              <div className="border-t pt-4 mb-6">
                 <div className="flex justify-between items-end">
                   <span className="font-bold text-lg">Total Amount</span>
-                  <span className="font-extrabold text-3xl text-brand-orange-500">₹942</span>
+                  <span className="font-extrabold text-3xl text-brand-orange-500">₹{selectedCylinder.price.toFixed(2)}</span>
                 </div>
                 <p className="text-xs text-right text-muted-foreground mt-1">Inclusive of all taxes</p>
              </div>
@@ -248,7 +255,7 @@ export default function BookCylinder() {
                <ShieldCheck className="text-green-500 shrink-0 mt-0.5" size={20} />
                <div>
                  <p className="text-sm font-bold leading-tight mb-1">Subsidy Eligible</p>
-                 <p className="text-xs text-muted-foreground leading-relaxed">Based on your Pahel linkage, ₹320 will be credited to your HDFC bank account ending in 4567 within 48 hours of delivery.</p>
+                 <p className="text-xs text-muted-foreground leading-relaxed">Based on your Pahel linkage, ₹320 will be credited to your linked bank account within 48 hours of delivery.</p>
                </div>
              </div>
 
@@ -261,3 +268,4 @@ export default function BookCylinder() {
     </div>
   );
 }
+

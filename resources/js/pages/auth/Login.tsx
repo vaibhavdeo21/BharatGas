@@ -56,7 +56,8 @@ export default function Login() {
 
     try {
         const response = await axios.post('/api/auth/login/request-otp', {
-            phone: phone
+            phone: phone,
+            role: role
         });
         
         setStep("otp");
@@ -119,7 +120,8 @@ export default function Login() {
         // Step 2: Post payload mapping exactly to AuthController requirements
         const response = await axios.post('/api/auth/login/verify-otp', {
             phone: phone,
-            otp: unifiedOtpString
+            otp: unifiedOtpString,
+            role: role
         });
 
         // Step 3: Store the token and role globally

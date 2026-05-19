@@ -17,13 +17,22 @@ class AuthController extends Controller
     public function requestOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required|size:10|exists:users,phone'
+            'phone' => 'required|size:10|exists:users,phone',
+            'role' => 'required|string|in:customer,admin,delivery'
         ], [
-            'phone.exists' => 'This mobile number is not registered with our agency.'
+            'phone.exists' => 'This mobile number is not registered with our agency.',
+            'role.in' => 'Invalid role selected.'
         ]);
 
         $user = User::where('phone', $request->phone)->first();
         
+        $requestedRole = $request->role === 'delivery' ? 'delivery_staff' : $request->role;
+        if ($user->role !== $requestedRole) {
+            return response()->json([
+                'message' => 'The mobile number does not match the selected role.'
+            ], 403);
+        }
+
         if (!$user->is_approved) {
             return response()->json([
                 'message' => 'Your account is pending admin approval. Please check back later.'
@@ -73,13 +82,21 @@ class AuthController extends Controller
     {
         $request->validate([
             'phone' => 'required|size:10|exists:users,phone',
-            'otp' => 'required|size:6'
+            'otp' => 'required|size:6',
+            'role' => 'required|string|in:customer,admin,delivery'
         ]);
 
         // ⚡ DEVELOPMENT BYPASS: Instantly authenticate the dummy account with 111111
         if ($request->phone === '9999999999' && $request->otp === '111111') {
             $user = User::where('phone', $request->phone)->first();
             
+            $requestedRole = $request->role === 'delivery' ? 'delivery_staff' : $request->role;
+            if ($user->role !== $requestedRole) {
+                return response()->json([
+                    'message' => 'The mobile number does not match the selected role.'
+                ], 403);
+            }
+
             if (!$user->is_approved) {
                 return response()->json([
                     'message' => 'Your account is pending admin approval. Please check back later.'
@@ -109,6 +126,13 @@ class AuthController extends Controller
         // OTP is valid! Find user and generate token.
         $user = User::where('phone', $request->phone)->first();
         
+        $requestedRole = $request->role === 'delivery' ? 'delivery_staff' : $request->role;
+        if ($user->role !== $requestedRole) {
+            return response()->json([
+                'message' => 'The mobile number does not match the selected role.'
+            ], 403);
+        }
+
         if (!$user->is_approved) {
             return response()->json([
                 'message' => 'Your account is pending admin approval. Please check back later.'

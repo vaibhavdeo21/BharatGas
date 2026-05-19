@@ -154,13 +154,13 @@ export default function TrackDelivery() {
             </div>
 
             {/* Destination Pin */}
-            <div className="absolute top-[180px] left-[780px] w-12 h-12 bg-white text-black rounded-full flex flex-col items-center justify-center shadow-2xl border-4 border-brand-orange-500 z-10">
+            <div className="absolute top-[180px] left-[780px] w-12 h-12 bg-card text-card-foreground rounded-full flex flex-col items-center justify-center shadow-2xl border-4 border-brand-orange-500 z-10">
               <MapPin size={24} className="fill-brand-orange-100 text-brand-orange-500" />
             </div>
 
             {/* Moving Truck */}
             <motion.div 
-               className="absolute z-20 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(247,91,17,0.4)] border-2 border-brand-orange-500 pointer-events-none"
+               className="absolute z-20 w-16 h-16 bg-card rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(247,91,17,0.4)] border-2 border-brand-orange-500 pointer-events-none"
                animate={{ 
                  x: [200, 350, 650, 750], 
                  y: [400, 275, 275, 200] 
