@@ -40,7 +40,12 @@ class InventorySeeder extends Seeder
         ];
 
         foreach ($inventory as $item) {
-            Inventory::create($item);
+            // Checks if the cylinder_type exists. 
+            // If yes, updates the stocks/prices. If no, creates a new row!
+            Inventory::updateOrCreate(
+                ['cylinder_type' => $item['cylinder_type']], // The unique condition
+                $item                                       // The data payload
+            );
         }
     }
 }
