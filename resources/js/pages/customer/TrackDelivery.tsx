@@ -35,10 +35,10 @@ export default function TrackDelivery() {
           <div className="flex justify-between items-start mb-2">
             <div>
                <h1 className="text-2xl font-bold tracking-tight">Track Order</h1>
-               <p className="text-muted-foreground font-medium">#{activeBooking?.id || 'ORD-8921'}</p>
+               <p className="text-muted-foreground font-medium">{activeBooking?.booking_reference || `ORD-${activeBooking?.id}`}</p>
             </div>
             <div className="px-3 py-1 bg-brand-orange-500/10 text-brand-orange-600 dark:text-brand-orange-400 text-xs font-bold uppercase tracking-wider rounded-full border border-brand-orange-500/20">
-               {activeBooking?.status === 'pending' ? 'Processing' : activeBooking?.status === 'in_transit' ? 'En Route' : 'Preparing'}
+               {activeBooking?.status?.replace('_', ' ') || 'Processing'}
             </div>
           </div>
           <div className="mt-4 flex items-center gap-3">
@@ -57,19 +57,27 @@ export default function TrackDelivery() {
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Delivery Executive</p>
           <div className="flex items-center gap-4">
             <div className="relative">
-              <img src="https://i.pravatar.cc/150?img=11" alt="Delivery Agent" className="w-16 h-16 rounded-full border-2 border-brand-orange-500 object-cover" />
+              <div className="w-16 h-16 rounded-full border-2 border-brand-orange-500 flex items-center justify-center bg-muted text-xl font-bold text-brand-orange-500 uppercase">
+                {activeBooking?.delivery?.deliveryStaff?.name?.charAt(0) || 'A'}
+              </div>
               <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-card flex items-center gap-0.5">
                 <Star size={10} className="fill-current" /> 4.9
               </div>
             </div>
             <div className="flex-1">
-               <h3 className="font-bold text-lg leading-tight">Ramesh Kumar</h3>
-               <p className="text-sm text-muted-foreground mb-2">Vehicle: AP 16 XY 1234</p>
+               <h3 className="font-bold text-lg leading-tight">{activeBooking?.delivery?.deliveryStaff?.name || 'Waiting for assignment...'}</h3>
+               {activeBooking?.delivery?.deliveryStaff?.phone && (
+                 <p className="text-sm text-muted-foreground mb-2">Phone: {activeBooking.delivery.deliveryStaff.phone}</p>
+               )}
                <div className="flex items-center gap-2">
-                 <button className="flex-1 py-2 rounded-lg bg-brand-orange-50 dark:bg-brand-orange-950/30 text-brand-orange-600 dark:text-brand-orange-400 font-bold text-sm flex items-center justify-center gap-2 border border-brand-orange-500/20 hover:bg-brand-orange-100 transition-colors">
+                 <button 
+                   onClick={() => activeBooking?.delivery?.deliveryStaff?.phone && window.open(`tel:${activeBooking.delivery.deliveryStaff.phone}`)}
+                   disabled={!activeBooking?.delivery?.deliveryStaff?.phone}
+                   className="flex-1 py-2 rounded-lg bg-brand-orange-50 dark:bg-brand-orange-950/30 text-brand-orange-600 dark:text-brand-orange-400 font-bold text-sm flex items-center justify-center gap-2 border border-brand-orange-500/20 hover:bg-brand-orange-100 transition-colors disabled:opacity-50"
+                 >
                    <Phone size={16} /> Call
                  </button>
-                 <button className="w-10 h-10 shrink-0 rounded-lg bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors border">
+                 <button disabled={!activeBooking?.delivery?.deliveryStaff?.phone} className="w-10 h-10 shrink-0 rounded-lg bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors border disabled:opacity-50">
                    <MessageSquare size={16} />
                  </button>
                </div>
@@ -82,7 +90,7 @@ export default function TrackDelivery() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
           <p className="text-sm font-medium text-white/80 mb-1 relative z-10">Delivery PIN / OTP</p>
           <div className="flex items-center justify-between relative z-10">
-             <h2 className="text-4xl font-black tracking-widest">7 4 9 2</h2>
+             <h2 className="text-4xl font-black tracking-widest">{activeBooking?.delivery?.otp_code ? activeBooking.delivery.otp_code.toString().split('').join(' ') : '----'}</h2>
              <ShieldCheck size={32} className="text-white/50" />
           </div>
           <p className="text-xs text-brand-orange-100 mt-2 relative z-10">Share this PIN only when the cylinder is delivered.</p>
@@ -93,19 +101,23 @@ export default function TrackDelivery() {
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">Delivery Updates</p>
           
           <div className="relative border-l-2 border-muted ml-3 space-y-8">
-            <div className="relative pl-6">
-              <span className="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-card bg-brand-orange-500 animate-pulse shadow-[0_0_10px_rgba(247,91,17,0.5)]"></span>
-              <h4 className="font-bold text-foreground">Agent approaching</h4>
-              <p className="text-sm text-brand-orange-500 font-medium mb-1">Ramesh is 1.2km away</p>
-              <p className="text-xs text-muted-foreground font-medium">14:16 PM</p>
-            </div>
+            {activeBooking?.delivery?.status === 'assigned' && (
+              <div className="relative pl-6">
+                <span className="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-card bg-brand-orange-500 animate-pulse shadow-[0_0_10px_rgba(247,91,17,0.5)]"></span>
+                <h4 className="font-bold text-foreground">Agent Assigned</h4>
+                <p className="text-sm text-brand-orange-500 font-medium mb-1">{activeBooking?.delivery?.deliveryStaff?.name} is getting ready.</p>
+                <p className="text-xs text-muted-foreground font-medium">Just now</p>
+              </div>
+            )}
             
-            <div className="relative pl-6">
-              <span className="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-card bg-brand-orange-500 flex items-center justify-center"><CheckCircle2 size={10} className="text-white relative right-[1px]" /></span>
-              <h4 className="font-bold text-foreground">Out for Delivery</h4>
-              <p className="text-sm text-muted-foreground mb-1">Cylinder has left the agency.</p>
-              <p className="text-xs text-muted-foreground font-medium">10:45 AM</p>
-            </div>
+            {['out_for_delivery', 'en_route'].includes(activeBooking?.status) && (
+              <div className="relative pl-6">
+                <span className="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-card bg-brand-orange-500 flex items-center justify-center"><CheckCircle2 size={10} className="text-white relative right-[1px]" /></span>
+                <h4 className="font-bold text-foreground">Out for Delivery</h4>
+                <p className="text-sm text-muted-foreground mb-1">Cylinder has left the agency.</p>
+                <p className="text-xs text-muted-foreground font-medium">In Progress</p>
+              </div>
+            )}
 
             <div className="relative pl-6">
               <span className="absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-card bg-brand-orange-500 flex items-center justify-center"><CheckCircle2 size={10} className="text-white relative right-[1px]" /></span>

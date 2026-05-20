@@ -126,7 +126,7 @@ class BookingController extends Controller
      */
     public function history(Request $request)
     {
-        $bookings = Booking::with('delivery')
+        $bookings = Booking::with('delivery.deliveryStaff')
             ->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -152,19 +152,21 @@ class BookingController extends Controller
             return response()->json(['message' => 'Invalid delivery staff member.'], 400);
         }
 
-        // Check if delivery already exists
         $delivery = Delivery::where('booking_id', $booking->id)->first();
+        $otp = rand(1000, 9999);
         
         if ($delivery) {
             $delivery->update([
                 'delivery_staff_id' => $staff->id,
                 'status' => 'assigned',
+                'otp_code' => $delivery->otp_code ?? $otp,
             ]);
         } else {
             Delivery::create([
                 'booking_id' => $booking->id,
                 'delivery_staff_id' => $staff->id,
                 'status' => 'assigned',
+                'otp_code' => $otp,
             ]);
         }
 
