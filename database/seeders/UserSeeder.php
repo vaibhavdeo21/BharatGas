@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
                 'name' => 'System Admin',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
-                'phone' => '9999999999',
+                'phone' => '6204999073',
                 'address' => 'Amrutha Gas Agency HQ, Kathar Kalan',
                 'is_active' => true,
             ]
