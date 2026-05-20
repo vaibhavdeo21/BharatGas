@@ -47,18 +47,15 @@ class AuthController extends Controller
         Cache::put('login_otp_' . $user->phone, $otp, now()->addMinutes(5));
 
         // ==========================================
-        // REAL SMS DELIVERY VIA FAST2SMS (OTP API ROUTE)
+        // REAL SMS DELIVERY VIA FAST2SMS (NO TEMPLATE ID ROUTE)
         // ==========================================
         try {
             $response = Http::withHeaders([
                 'authorization' => env('FAST2SMS_API_KEY') // Injected via Render Environment
-            ])->post('https://www.fast2sms.com/dev/otp/send', [
-                'mobile'           => $user->phone,
-                'otp_id'           => env('FAST2SMS_OTP_TEMPLATE_ID'), // Global system template ID token
-                'otp_expiry'       => 5,                               // Valid for 5 mins to match Cache
-                'otp_length'       => 6,
-                'otp'              => (string)$otp,                    // Passing our custom random OTP
-                'variables_values' => (string)$otp                     // Mapping variables to avoid DLT block
+            ])->post('https://www.fast2sms.com/dev/bulkV2', [
+                'route'            => 'otp',                 // Tells Fast2SMS to use its built-in system template
+                'variables_values' => (string)$otp,          // Automatically injects your 6-digit code into their default message
+                'numbers'          => $user->phone,          // Target phone number
             ]);
 
             if (!$response->successful()) {
