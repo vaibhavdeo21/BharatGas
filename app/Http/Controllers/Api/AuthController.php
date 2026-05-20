@@ -33,7 +33,8 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!$user->is_approved) {
+        // Check if user is approved (making sure to handle uninitialized fields safely)
+        if (isset($user->is_approved) && !$user->is_approved) {
             return response()->json([
                 'message' => 'Your account is pending admin approval. Please check back later.'
             ], 403);
@@ -46,23 +47,22 @@ class AuthController extends Controller
         Cache::put('login_otp_' . $user->phone, $otp, now()->addMinutes(5));
 
         // ==========================================
-        // REAL SMS DELIVERY VIA FAST2SMS
+        // REAL SMS DELIVERY VIA FAST2SMS (OTP API ROUTE)
         // ==========================================
-        $message = "Your Amrutha BharatGas Login OTP is {$otp}. Valid for 5 mins. Do not share this with anyone.";
-
         try {
             $response = Http::withHeaders([
-                'authorization' => env('FAST2SMS_API_KEY')
-            ])->post('https://www.fast2sms.com/dev/bulkV2', [
-                'route' => 'q',
-                'message' => $message,
-                'language' => 'english',
-                'flash' => 0,
-                'numbers' => $user->phone,
+                'authorization' => env('FAST2SMS_API_KEY') // Injected via Render Environment
+            ])->post('https://www.fast2sms.com/dev/otp', [
+                'mobile'           => $user->phone,
+                'otp_id'           => env('FAST2SMS_OTP_TEMPLATE_ID'), // Global system template ID token
+                'otp_expiry'       => 5,                               // Valid for 5 mins to match Cache
+                'otp_length'       => 6,
+                'otp'              => (string)$otp,                    // Passing our custom random OTP
+                'variables_values' => (string)$otp                     // Mapping variables to avoid DLT block
             ]);
 
             if (!$response->successful()) {
-                Log::error('Fast2SMS Login Failed: ' . $response->body());
+                Log::error('Fast2SMS OTP Endpoint Failed: ' . $response->body());
                 Log::info("DEVELOPMENT FALLBACK: Login OTP for {$user->phone} is {$otp}");
             }
         } catch (\Exception $e) {
@@ -97,7 +97,7 @@ class AuthController extends Controller
                 ], 403);
             }
 
-            if (!$user->is_approved) {
+            if (isset($user->is_approved) && !$user->is_approved) {
                 return response()->json([
                     'message' => 'Your account is pending admin approval. Please check back later.'
                 ], 403);
@@ -133,7 +133,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!$user->is_approved) {
+        if (isset($user->is_approved) && !$user->is_approved) {
             return response()->json([
                 'message' => 'Your account is pending admin approval. Please check back later.'
             ], 403);
