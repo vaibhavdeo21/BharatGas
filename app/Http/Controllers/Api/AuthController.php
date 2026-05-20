@@ -52,7 +52,7 @@ class AuthController extends Controller
         try {
             $response = Http::withHeaders([
                 'authorization' => env('FAST2SMS_API_KEY') // Injected via Render Environment
-            ])->post('https://www.fast2sms.com/dev/otp', [
+            ])->post('https://www.fast2sms.com/dev/otp/send', [
                 'mobile'           => $user->phone,
                 'otp_id'           => env('FAST2SMS_OTP_TEMPLATE_ID'), // Global system template ID token
                 'otp_expiry'       => 5,                               // Valid for 5 mins to match Cache
